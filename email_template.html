@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        h2 {
+            color: #0056b3;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .footer {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <h2>Détails de votre stage</h2>
+        <p>Bonjour,</p>
+        <p>Vous avez été affecté(e) à un stage. Voici les informations pertinentes :</p>
+        <table>
+            <tr>
+                <td><strong>Type de stage :</strong></td>
+                <td>{{type_stage}}</td>
+            </tr>
+            <tr>
+                <td><strong>Date de soutenance :</strong></td>
+                <td>{{date_soutenance}}</td>
+            </tr>
+            <tr>
+                <td><strong>Jury :</strong></td>
+                <td>{{jury}}</td>
+            </tr>
+            <tr>
+                <td><strong>ID de l'encadrant :</strong></td>
+                <td>{{encadrant_id}}</td>
+            </tr>
+        </table>
+        <p>Veuillez vous assurer de bien noter ces informations.</p>
+        <p>Cordialement,<br>L'équipe administrative</p>
+        <div class="footer">
+            &copy; 2024 L'équipe Administrative. Tous droits réservés.
+        </div>
+    </div>
+</body>
+
+</html>
