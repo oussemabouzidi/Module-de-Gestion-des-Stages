@@ -214,6 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let dateInput = document.getElementById('dateSoutenance_id').value.toLowerCase();
     let juryInput = document.getElementById('jury_id').value.toLowerCase();
 
+
     // Loop through table rows (skip the header row)
     for (let i = 1; i < rows.length; i++) {
         let cells = rows[i].getElementsByTagName('td');
@@ -252,6 +253,26 @@ document.getElementById('resetButton').addEventListener('click', function(){
     
     window.searchAll();
 })
+
+document.getElementById("exportStageBtn").addEventListener("click", function(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    // Get input values
+    var searchStages = document.getElementById("searchStages").value;
+    var searchTypeStage = document.getElementById("search_type").value;
+    var encadrent = document.getElementById("encadrent").value;
+    var dateSoutenance = document.getElementById("dateSoutenance_id").value;
+    var juryId = document.getElementById("jury_id").value;
+
+    // Redirect to pdf.php with the form data as URL parameters
+    window.location.href = "pdf.php?searchStages=" + encodeURIComponent(searchStages) + 
+        "&searchTypeStage=" + encodeURIComponent(searchTypeStage) + 
+        "&encadrent=" + encodeURIComponent(encadrent) + 
+        "&dateSoutenance=" + encodeURIComponent(dateSoutenance) + 
+        "&juryId=" + encodeURIComponent(juryId);
+});
+
+
 
     
 });

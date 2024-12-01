@@ -143,18 +143,18 @@ Stages</pre>
                 </div>
             </div>
 
-            <form action="pdf.php" method="POST">
-                <div class=" text-center mb-4 btn_ajouter">
-                    <button type="button" class="btn btn-white" data-bs-toggle='modal' data-bs-target='#addStageModal'>
-                        Ajouter un Stage
-                    </button>
-                </div>
-                <div class=" text-center mb-4 btn_pdf">
-                    <button type="submit" class="btn btn-white">
-                        Exporter en PDF
-                    </button>
-                </div>
-            </form>
+            <div class=" text-center mb-4 btn_ajouter">
+                <button type="button" class="btn btn-white" data-bs-toggle='modal' data-bs-target='#addStageModal'>
+                    Ajouter un Stage
+                </button>
+            </div>
+            <div class="text-center mb-4 btn_pdf">
+                <button type="submit" class="btn btn-white" id="exportStageBtn">Exporter en PDF</button>
+            </div>
+
+
+
+
         </div>
 
         <div id="section2">

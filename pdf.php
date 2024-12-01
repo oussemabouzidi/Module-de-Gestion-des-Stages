@@ -1,7 +1,14 @@
 <?php
-// Include Composer's autoload file
-require_once 'vendor/autoload.php';
 
+// Get the GET parameters
+$searchStages = $_GET['searchStages'] ?? ''; // Use null coalescing operator for default
+$searchTypeStage = $_GET['searchTypeStage'] ?? '';
+$encadrent = $_GET['encadrent'] ?? '';
+$dateSoutenance = $_GET['dateSoutenance'] ?? '';
+$juryId = $_GET['juryId'] ?? '';
+
+// PDF generation logic here
+require_once 'vendor/autoload.php';
 include('db_connection.php');
 include('data.php');
 
@@ -16,15 +23,21 @@ $options->set('isPhpEnabled', true);  // Enable PHP functions if necessary
 $dompdf = new Dompdf($options);
 
 // Convert image to base64
-$imagePath = 'C:/wamp64/www/test_module_gestion_stages/src/img/Logo_ISET_Kélibia.jpg';
-$imageData = base64_encode(file_get_contents($imagePath));
+$imagePath = 'C:/wamp64/www/module_gestion_stages/src/img/Logo_ISET_Kélibia.jpg';
+$imageData = '';
+
+if (file_exists($imagePath)) {
+    $imageData = base64_encode(file_get_contents($imagePath));
+} else {
+    echo "Image file does not exist at: " . $imagePath;
+    exit;  // Stop execution if image isn't found
+}
 
 // Start building the HTML content
 $html = "
 <html>
 <head>
     <style>
-        /* Body styling */
         body {
             font-family: 'Arial', sans-serif;
             font-size: 12px;
@@ -33,43 +46,34 @@ $html = "
         }
 
         .header-section {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    margin-bottom: 20px;
-    width: 100%; /* Ensure it takes up full width */
-}
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            width: 100%;
+        }
 
-.header-logo {
-    margin-right: 20px;
-}
+        .header-logo {
+            margin-right: 20px;
+        }
 
-.header-logo img {
-    width: 80px;  /* Adjust logo size */
-    height: auto;
-}
+        .header-logo img {
+            width: 80px;  
+            height: auto;
+        }
 
-.header-text {
-    display: flex;
-    flex-direction: column; /* Stack text vertically */
-    justify-content: center;
-}
+        .header-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
-.header-text h3,
-.header-text h4 {
-    margin: 0;
-    padding: 0;
-    color: #003366; /* Ensure text color */
-}
-
-.header-text h3 {
-    font-size: 18px;
-}
-
-.header-text h4 {
-    font-size: 16px;
-}
-
+        .header-text h3,
+        .header-text h4 {
+            margin: 0;
+            padding: 0;
+            color: #003366;
+        }
 
         h1 {
             text-align: center;
@@ -78,30 +82,13 @@ $html = "
             color: #003366;
         }
 
-        h3,
-        h4 {
-            text-align: center;
-            margin: 5px 0;
-            color: #003366;
-        }
-
-        h3 {
-            font-size: 18px;
-        }
-
-        h4 {
-            font-size: 16px;
-        }
-
-        /* Table Styling */
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
 
-        th,
-        td {
+        th, td {
             padding: 12px 10px;
             border: 1px solid #ddd;
             text-align: left;
@@ -119,10 +106,6 @@ $html = "
             color: #333;
         }
 
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
         footer {
             position: fixed;
             bottom: 0;
@@ -135,16 +118,6 @@ $html = "
             padding: 10px 0;
             background-color: #fff;
             border-top: 1px solid #ddd;
-        }
-
-        .footer-text {
-            margin-top: 10px;
-            font-size: 12px;
-        }
-
-        /* Spacing between sections */
-        .section {
-            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -160,7 +133,7 @@ $html = "
             <h3>Institut Supérieur des Études Technologiques de Kélibia</h3>
             <h4>Département Technologies de l'Informatique</h4>
         </div>
-</div>
+    </div>
 
     </div>
     <br><br>
@@ -178,27 +151,55 @@ $html = "
         </thead>
         <tbody>";
 
-$stages = $conn->query("SELECT * FROM stages"); // Adjust this query to your needs
+// Start building the query based on GET parameters
+$whereConditions = [];
+
+if ($searchStages) {
+    $whereConditions[] = "(s.nom LIKE '%" . $conn->real_escape_string($searchStages) . "%' OR s.prenom LIKE '%" . $conn->real_escape_string($searchStages) . "%')";
+}
+if ($searchTypeStage) {
+    $whereConditions[] = "stages.type LIKE '%" . $conn->real_escape_string($searchTypeStage) . "%'";
+}
+
+// If an encadrant's name is passed, retrieve the encadrant's ID first
+if ($encadrent) {
+    $encadrant_query = "SELECT id FROM encadrants WHERE nom LIKE '%" . $conn->real_escape_string($encadrent) . "%' LIMIT 1";
+    $encadrant_result = $conn->query($encadrant_query);
+
+    if ($encadrant_result && $encadrant_row = $encadrant_result->fetch_assoc()) {
+        $encadrent_id = $encadrant_row['id'];
+        $whereConditions[] = "stages.id_encadrant = " . (int)$encadrent_id;
+    } else {
+        $whereConditions[] = "stages.id_encadrant IS NULL";  // No matching encadrant found
+    }
+}
+
+if ($dateSoutenance) {
+    $whereConditions[] = "stages.date_soutenance = '" . $conn->real_escape_string($dateSoutenance) . "'";
+}
+if ($juryId) {
+    $whereConditions[] = "stages.id_jery = " . (int)$juryId;
+}
+
+$whereSql = count($whereConditions) > 0 ? "WHERE " . implode(" AND ", $whereConditions) : "";
+
+$query = "
+    SELECT stages.*, s.nom AS stagiaire_nom, s.prenom AS stagiaire_prenom 
+    FROM stages 
+    JOIN stage_stagiaire ss ON stages.id = ss.stage_id
+    JOIN stagiaires s ON ss.stagiaire_id = s.id
+    " . $whereSql;
+
+$stages = $conn->query($query);
 
 if (!$stages) {
-    die("Error retrieving stages: " . $conn->error); // Ensure you get an error message if the query fails
+    die("Error retrieving stages: " . $conn->error);
 }
 
 if ($stages->num_rows > 0) {
     while ($stage_info = $stages->fetch_assoc()) {
-        // Get stagiaires (students) for the current stage
-        $stagiaires = $conn->query("SELECT s.nom, s.prenom FROM stagiaires s 
-                                    JOIN stage_stagiaire ss ON s.id = ss.stagiaire_id
-                                    WHERE ss.stage_id = " . $stage_info['id']);
-
-        // Store stagiaire names in an array
-        $stagiaires_names = [];
-        while ($stagiaire = $stagiaires->fetch_assoc()) {
-            $stagiaires_names[] = $stagiaire['nom'] . " " . $stagiaire['prenom'];
-        }
-
         // Handle the case where id_encadrant might be null or empty
-        $encadrant_name = 'None';  // Default value in case of no encadrant
+        $encadrant_name = 'None';
         if (!empty($stage_info['id_encadrant'])) {
             $encadrant = $conn->query("SELECT nom FROM encadrants WHERE id = " . $stage_info['id_encadrant']);
             if ($encadrant && $encadrant_row = $encadrant->fetch_assoc()) {
@@ -209,7 +210,7 @@ if ($stages->num_rows > 0) {
         // Constructing the table row for each stage
         $html .= "
         <tr>
-            <td>" . implode(", ", $stagiaires_names) . "</td>
+            <td>" . htmlspecialchars($stage_info['stagiaire_nom']) . " " . htmlspecialchars($stage_info['stagiaire_prenom']) . "</td>
             <td>" . htmlspecialchars($stage_info['type']) . "</td>
             <td>" . htmlspecialchars($stage_info['date_soutenance']) . "</td>
             <td>" . htmlspecialchars($encadrant_name) . "</td>
