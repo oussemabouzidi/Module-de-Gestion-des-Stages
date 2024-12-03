@@ -10,40 +10,98 @@ document.addEventListener('DOMContentLoaded', function () {
     
 
     function handleStageTypeChange() {
-        const selectedType = stageTypeSelect.value;
+    const selectedType = stageTypeSelect.value;
 
-        if (selectedType === 'PFE') {
-            encadrantDiv.style.display = 'block';
-            stagiaireSelect.multiple = true;
-        } else {
-            encadrantDiv.style.display = 'none';
-            stagiaireSelect.multiple = false;
-        }
+    // Show/hide encadrant and set multiple selection for stagiaires
+    if (selectedType === 'PFE') {
+        encadrantDiv.style.display = 'block';
+        stagiaireSelect.multiple = true;
+    } else {
+        encadrantDiv.style.display = 'none';
+        stagiaireSelect.multiple = false;
+    }
 
-        if (selectedType === 'PFE') {
-            Array.from(encadrantSelect.options).forEach(option => {
-                const match = option.textContent.match(/nombre de stage (\d+)/);
-                const encadrantNbrStages = match ? parseInt(match[1], 10) : null;
+    // Enable/disable encadrant options based on their number of stages
+    if (selectedType === 'PFE') {
+        Array.from(encadrantSelect.options).forEach(option => {
+            const match = option.textContent.match(/nombre de stage (\d+)/);
+            const encadrantNbrStages = match ? parseInt(match[1], 10) : null;
 
-                if (encadrantNbrStages !== null && encadrantNbrStages < 4) {
-                    option.disabled = false;
-                } else {
-                    option.disabled = true;
-                }
-            });
-        }
-
-        Array.from(jurySelect.options).forEach(option => {
-            const match = option.textContent.match(/nombre de stage: (\d+)/);
-            const juryNbrStages = match ? parseInt(match[1], 10) : null;
-
-            if (juryNbrStages !== null && juryNbrStages < 20) {
+            if (encadrantNbrStages !== null && encadrantNbrStages < 4) {
                 option.disabled = false;
             } else {
                 option.disabled = true;
             }
         });
     }
+
+    // Enable/disable jury options based on their number of stages
+    Array.from(jurySelect.options).forEach(option => {
+        const match = option.textContent.match(/nombre de stage: (\d+)/);
+        const juryNbrStages = match ? parseInt(match[1], 10) : null;
+
+        if (juryNbrStages !== null && juryNbrStages < 20) {
+            option.disabled = false;
+        } else {
+            option.disabled = true;
+        }
+    });
+
+    if (selectedType === 'PFE') {
+        fetch('get_stagiaires.php?filieres=DSI3,MDW3') // Multiple filières in query
+            .then(response => response.json())
+            .then(data => {
+                // Clear existing stagiaire options
+                stagiaireSelect.innerHTML = '<option value="" selected disabled>Select stagiaire</option>';
+
+                // Populate dropdown with filtered stagiaires
+                data.forEach(stagiaire => {
+                    const option = document.createElement('option');
+                    option.value = stagiaire.id;
+                    option.textContent = stagiaire.nom + ' ' + stagiaire.prenom;
+                    stagiaireSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching stagiaires:', error));
+    } else if(selectedType === 'initiation') {
+            fetch("get_stagiaires.php?filieres=" + encodeURIComponent("technologie d'informatique"))
+                .then(response => response.json())
+                .then(data => {
+                    // Clear existing stagiaire options
+                    stagiaireSelect.innerHTML = '<option value="" selected disabled>Select stagiaire</option>';
+
+                    // Populate dropdown with filtered stagiaires
+                    data.forEach(stagiaire => {
+                        const option = document.createElement('option');
+                        option.value = stagiaire.id;
+                        option.textContent = stagiaire.nom + ' ' + stagiaire.prenom;
+                        stagiaireSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching stagiaires:', error));
+    } else if(selectedType === 'perfectionnement'){
+        fetch("get_stagiaires.php?filieres=DSI2,MDW2")
+                .then(response => response.json())
+                .then(data => {
+                    // Clear existing stagiaire options
+                    stagiaireSelect.innerHTML = '<option value="" selected disabled>Select stagiaire</option>';
+
+                    // Populate dropdown with filtered stagiaires
+                    data.forEach(stagiaire => {
+                        const option = document.createElement('option');
+                        option.value = stagiaire.id;
+                        option.textContent = stagiaire.nom + ' ' + stagiaire.prenom;
+                        stagiaireSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching stagiaires:', error));
+    }else{
+        stagiaireSelect.innerHTML = '<option value="" selected disabled>Select stagiaire</option>';
+
+    }
+
+}
+
 
     function validateStagiairesSelection(event) {
         const selectedType = stageTypeSelect.value;
@@ -289,8 +347,6 @@ document.getElementById("exportExcelBtn").addEventListener("click", function(eve
         "&dateSoutenance=" + encodeURIComponent(dateSoutenance) +
         "&juryId=" + encodeURIComponent(juryId);
 });
-
-
 
 
     
