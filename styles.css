@@ -132,7 +132,7 @@ h2 {
 
 .btn_pdf{
     display: inline-block;
-    background-color: #13d102;
+    background-color: #ff2b2b ;
     color: #ffffff;
     padding: 12px 25px;
     font-size: 16px;
@@ -143,6 +143,23 @@ h2 {
 }
 
 .btn_pdf:hover {
+    background-color: #ce0000;
+    transform: translateY(-3px);
+}
+
+.btn-excel{
+    display: inline-block;
+    background-color: #13d102;
+    color: #ffffff;
+    padding: 12px 25px;
+    font-size: 16px;
+    border-radius: 50px;
+    margin-top: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn_excel:hover {
     background-color: #109b01;
     transform: translateY(-3px);
 }

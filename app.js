@@ -272,6 +272,25 @@ document.getElementById("exportStageBtn").addEventListener("click", function(eve
         "&juryId=" + encodeURIComponent(juryId);
 });
 
+document.getElementById("exportExcelBtn").addEventListener("click", function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    // Get input values
+    var searchStages = document.getElementById("searchStages").value;
+    var searchTypeStage = document.getElementById("search_type").value;
+    var encadrent = document.getElementById("encadrent").value;
+    var dateSoutenance = document.getElementById("dateSoutenance_id").value;
+    var juryId = document.getElementById("jury_id").value;
+
+    // Redirect to excel.php with form data as URL parameters
+    window.location.href = "excel.php?searchStages=" + encodeURIComponent(searchStages) +
+        "&searchTypeStage=" + encodeURIComponent(searchTypeStage) +
+        "&encadrent=" + encodeURIComponent(encadrent) +
+        "&dateSoutenance=" + encodeURIComponent(dateSoutenance) +
+        "&juryId=" + encodeURIComponent(juryId);
+});
+
+
 
 
     

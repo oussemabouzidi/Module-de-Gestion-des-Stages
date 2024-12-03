@@ -152,9 +152,9 @@ Stages</pre>
                 <button type="submit" class="btn btn-white" id="exportStageBtn">Exporter en PDF</button>
             </div>
 
-
-
-
+            <div class="text-center mb-4 btn-excel">
+                <button type="button" id="exportExcelBtn" class="btn btn-white" id="exportExcelBtn">Exporter en Excel</button>
+            </div>
         </div>
 
         <div id="section2">
